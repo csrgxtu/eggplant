@@ -5,7 +5,10 @@ from bs4 import BeautifulSoup
 
 # url = "https://v.douyin.com/ievRk7uf/"
 # url = "https://v.douyin.com/ievfYXSy/"
-url = "https://v.douyin.com/ievfVbTR/"
+# url = "https://v.douyin.com/ievfVbTR/"
+# url = "https://v.douyin.com/ievfKAXj/"
+# url = "https://v.douyin.com/ievxa2UP/"
+url = "https://v.douyin.com/ievxwT5U/"
 
 driver = webdriver.Chrome()
 driver.get(url)

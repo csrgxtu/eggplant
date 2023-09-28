@@ -29,7 +29,7 @@ class EggPlant:
         Returns:
             Union[str, str]: err-msg, video-file-path
         """
-        err, video_file_path = await self.eggplant.download_video(url=url)
+        err, video_file_path = await self.eggplant.download_video(url)
         return err, video_file_path
 
 
