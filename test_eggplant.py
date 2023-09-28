@@ -6,9 +6,16 @@ from errors import Exceptions
 
 @pytest.mark.asyncio
 async def test_download_douyin_video():
-    eggplant = EggPlant(Source.DouYin)
-    url = 'https://v.douyin.com/ievRk7uf/'
-    # https://www.douyin.com/video/7281881306265341247
-    err, video_file_path = await eggplant.download_video(url)
-    assert err == Exceptions.OK
-    assert video_file_path != ""
+    urls = [
+        'https://v.douyin.com/ievRk7uf/',
+        'https://v.douyin.com/iecENcVj/',
+        'https://v.douyin.com/iecEuGWp/',
+        'https://v.douyin.com/iecEbWKX/',
+        'https://v.douyin.com/iecEVPQo/',
+        'https://v.douyin.com/iecEgjLy/'
+    ]
+    for url in urls:
+        eggplant = EggPlant(Source.DouYin)
+        err, video_file_path = await eggplant.download_video(url)
+        assert err == Exceptions.OK
+        assert ".mp4" in video_file_path

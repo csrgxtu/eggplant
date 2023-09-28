@@ -35,7 +35,7 @@ class DouYin:
         if err != Exceptions.OK:
             return err, ""
 
-        filename = f'/tmp/{uuid.uuid4()}'
+        filename = f'/tmp/{uuid.uuid4()}.mp4'
         with open(filename, 'wb') as f:
             f.write(content)
 
