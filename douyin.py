@@ -1,14 +1,48 @@
 import asyncio
 import uuid
+import json
+import time
 from typing import Union
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 from http_util import HttpProxy
 from errors import Exceptions
 
 class DouYin:
-    def __init__(self) -> None:
+    def __init__(self, cookie_path: str) -> None:
+        # options = ChromeOptions()
+        # ## regular
+        # options.add_argument('--disable-blink-features=AutomationControlled')
+        # options.add_argument('--profile-directory=Default')
+
+        # ## experimental
+        # options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        # options.add_experimental_option('useAutomationExtension', False)
+
+        # options.add_argument('--headless=new')
+
+        # login first, upload video will need login
+        with open(cookie_path, 'r') as f:
+            self.cookies = json.loads(f.read())
+
         self.driver = webdriver.Chrome()
+        self.driver.get('https://www.douyin.com')
+        for cookie in self.cookies:
+            self.driver.add_cookie({
+                'domain': '.douyin.com',
+                'name': cookie.get('name'),
+                'value': cookie.get('value'),
+                "expires": cookie.get('value'),
+                'path': '/',
+                'httpOnly': False,
+                'HostOnly': False,
+                'Secure': False
+            })
+        print('after setting cookies')
+        self.driver.get('https://www.douyin.com')
+        time.sleep(120)
+        
 
     async def download_video(self, url: str) -> Union[str, str]:
         """ download video from DouYin

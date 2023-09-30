@@ -16,3 +16,13 @@ class TikTok:
         """
         pass
 
+    async def upload_video(self, filename: str) -> Union[str, str]:
+        """upload video in filename to tiktok
+
+        Args:
+            filename (str): _description_
+
+        Returns:
+            Union[str, str]: err-msg, _
+        """
+        pass
