@@ -14,9 +14,9 @@ class EggPlant:
             ValueError: _description_
         """
         if source == Source.TikTok:
-            self.eggplant = TikTok()
+            self.eggplant = TikTok(cookie_path="")
         elif source == Source.DouYin:
-            self.eggplant = DouYin()
+            self.eggplant = DouYin(cookie_path="")
         else:
             raise ValueError(f"Invalid Source {source}")
     
