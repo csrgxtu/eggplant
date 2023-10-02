@@ -1,47 +1,57 @@
-import asyncio
 import uuid
 import json
-import time
 from typing import Union
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+from playwright.async_api import async_playwright, expect
 from http_util import HttpProxy
 from errors import Exceptions
 
 class DouYin:
     def __init__(self, cookie_path: str) -> None:
-        # options = ChromeOptions()
-        # ## regular
-        # options.add_argument('--disable-blink-features=AutomationControlled')
-        # options.add_argument('--profile-directory=Default')
+        """_summary_
 
-        # ## experimental
-        # options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        # options.add_experimental_option('useAutomationExtension', False)
-
-        # options.add_argument('--headless=new')
-
-        # login first, upload video will need login
+        Args:
+            cookie_path (str): _description_
+        """
         with open(cookie_path, 'r') as f:
             self.cookies = json.loads(f.read())
+    
+    async def __aenter__(self) -> None:
+        """async context manager, prepare the chrome instance
+        """
+        self.apw = async_playwright()
+        pw = await self.apw.__aenter__()
+        self.browser = await pw.chromium.launch()
+        self.context = await self.browser.new_context()
+        self.page = await self.context.new_page()
 
-        self.driver = webdriver.Chrome()
-        self.driver.get('https://www.douyin.com')
+        # set chrome exported cookies into playwright
+        pw_cookies = []
         for cookie in self.cookies:
-            self.driver.add_cookie({
-                'domain': '.douyin.com',
+            pw_cookies.append({
                 'name': cookie.get('name'),
                 'value': cookie.get('value'),
-                "expires": cookie.get('value'),
-                'path': '/',
-                'httpOnly': False,
+                'domain': cookie.get('domain'),
+                'path': cookie.get('path'),
+                'HttpOnly': False,
                 'HostOnly': False,
                 'Secure': False
             })
-        print('after setting cookies')
-        self.driver.get('https://www.douyin.com')
-        time.sleep(120)
+        await self.context.clear_cookies()
+        await self.context.add_cookies(cookies=pw_cookies)
+
+        return self
+    
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        """async context manager, release the instance
+
+        Args:
+            exc_type (_type_): _description_
+            exc (_type_): _description_
+            tb (_type_): _description_
+        """
+        await self.context.close()
+        await self.browser.close()
+        await self.apw.__aexit__()
         
 
     async def download_video(self, url: str) -> Union[str, str]:
@@ -56,16 +66,36 @@ class DouYin:
         Returns:
             Union[str, str]: err-msg, video-file-path
         """
-        err, rendered_html = await self.__get_rendered_src(url)
-        if err != Exceptions.OK:
-            return err, ""
+        await self.page.goto(url)
+
+        xpath = '//*[@id="douyin-right-container"]/div[3]/div/div[1]/div[2]/div/xg-video-container/video'
+        await expect(self.page.locator(xpath)).to_have_attribute('mediatype', 'video')
+        xpath_source = xpath + '/source[2]'
+        video_link = await self.page.locator(xpath_source).get_attribute('src')
+        video_link = f'https:{video_link}'
+        print(f'Extracted VideoLink: {video_link}\n')
+
+        headers = {
+            'Accept-Encoding': 'gzip, deflate, sdch',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Upgrade-Insecure-Requests': '1',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Referer': url,
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+            'Sec-Ch-Ua': '"Google Chrome";v="117", "Not;A=Brand";v="8", "Chromium";v="117"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': 'macOS',
+            'Sec-Fetch-Dest': 'empty'
+        }
+        request_cookies = {}
+        for cookie in await self.context.cookies():
+            request_cookies.update({
+                cookie.get('name'): cookie.get('value')
+            })
         
-        err, video_link = await self.__parse_video_url(rendered_html)
-        if err != Exceptions.OK:
-            return err, ""
-        
-        proxy = HttpProxy()
-        err, content = await proxy.get(video_link)
+        err, content = await HttpProxy.get(video_link, headers, request_cookies)
         if err != Exceptions.OK:
             return err, ""
 
@@ -75,38 +105,13 @@ class DouYin:
 
         return Exceptions.OK, filename
 
-    async def __get_rendered_src(self, url: str) -> Union[str, str]:
-        """DouYin's web is rendered on client side, so need use headless
-        chrome render the page and then get the source code
+    async def upload_video(self, filename: str) -> Union[str, str]:
+        """upload video in filename to tiktok
 
         Args:
-            url (str): _description_
+            filename (str): _description_
 
         Returns:
-            Union[str, str]: err-msg, html source code
+            Union[str, str]: err-msg, _
         """
-        self.driver.get(url)
-        await asyncio.sleep(5)
-        return Exceptions.OK, self.driver.page_source
-
-    async def __parse_video_url(self, html: str) -> Union[str, str]:
-        """parse and get video play link
-
-        Args:
-            html (str): html source code
-
-        Returns:
-            Union[str, str]: err-msg, video link
-        """
-        soup = BeautifulSoup(html, 'html.parser')
-        sources = soup.find_all('source')
-        video_link = "https:" + sources[-1].attrs['src']
-        print(f'Video Link: {video_link}')
-
-        self.driver.get(video_link)
-        await asyncio.sleep(3)
-        cdn_link = self.driver.current_url
-        self.driver.close()
-        print(f'After 302: {cdn_link}')
-
-        return Exceptions.OK, cdn_link
+        return Exceptions.OK, ""
