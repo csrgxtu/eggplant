@@ -4,19 +4,21 @@ from douyin import DouYin
 
 
 class EggPlant:
-    def __init__(self, source: str) -> None:
+    def __init__(self, source: str, cookie_path: str) -> None:
         """_summary_
 
         Args:
             source (str): refer class Source
+            cookie_path (str): cookies exported from chrome
 
         Raises:
             ValueError: _description_
         """
+        self.cookie_path = cookie_path
         if source == Source.TikTok:
-            self.eggplant = TikTok(cookie_path="")
+            self.eggplant = TikTok
         elif source == Source.DouYin:
-            self.eggplant = DouYin(cookie_path="")
+            self.eggplant = DouYin
         else:
             raise ValueError(f"Invalid Source {source}")
     
@@ -29,7 +31,8 @@ class EggPlant:
         Returns:
             Union[str, str]: err-msg, video-file-path
         """
-        err, video_file_path = await self.eggplant.download_video(url)
+        async with self.eggplant(self.cookie_path) as eggplant:
+            err, video_file_path = await eggplant.download_video(url)
         return err, video_file_path
 
 

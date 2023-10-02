@@ -1,11 +1,10 @@
 import uuid
 import json
 from typing import Union
+from playwright.async_api import async_playwright, expect
 from http_util import HttpProxy
 from errors import Exceptions
-from playwright.async_api import async_playwright
-from playwright.async_api import expect
-import requests
+
 
 class TikTok:
     def __init__(self, cookie_path: str) -> None:
@@ -92,17 +91,16 @@ class TikTok:
             request_cookies.update({
                 cookie.get('name'): cookie.get('value')
             })
-        
-        # err, data = await HttpProxy.get(video_link, headers=headers, cookies=request_cookies)
-        # if err != Exceptions.OK:
-        #     return err, ""
-        
-        res = requests.get(video_link, headers=headers, cookies=request_cookies)
-        print(f'Requests: {res.status_code}')
-        with open('./test.mp4', 'wb') as f:
-            f.write(res.content)
 
-        return Exceptions.OK, "./test.mp4"
+        err, content = await HttpProxy.get(video_link, headers, request_cookies)
+        if err != Exceptions.OK:
+            return err, ""
+        
+        filename = f'/tmp/{uuid.uuid4()}.mp4'
+        with open(filename, 'wb') as f:
+            f.write(content)
+
+        return Exceptions.OK, filename
 
     async def upload_video(self, filename: str) -> Union[str, str]:
         """upload video in filename to tiktok

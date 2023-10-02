@@ -1,4 +1,4 @@
-import aiohttp
+import httpx
 from typing import Union
 from errors import Exceptions
 
@@ -15,7 +15,9 @@ class HttpProxy:
         Returns:
             Union[str, bytes]: err-msg, content
         """
-        async with aiohttp.ClientSession(cookies=cookies) as session:
-            async with session.get(url, headers=headers) as response:
-                content = await response.read()
-                return Exceptions.OK, content
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url, headers=headers, cookies=cookies)
+            if res.status_code == 200:
+                return Exceptions.OK, res.content
+            
+            return Exceptions.DependencyError, ""

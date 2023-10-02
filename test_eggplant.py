@@ -24,17 +24,23 @@ async def test_download_douyin_video():
 
 @pytest.mark.asyncio
 async def test_download_tiktok_video():
+    cookie_path = "/Users/minyakonga/Downloads/www.tiktok.com_cookies.json"
     urls = [
-        'https://www.tiktok.com/@neto_song/video/7283228578618035462?is_from_webapp=1&sender_device=pc&web_id=7283401144314725931'
+        'https://www.tiktok.com/@fiqzlirik/video/7278256015328496914',
+        'https://www.tiktok.com/@neto_song/video/7283228578618035462',
+        'https://www.tiktok.com/@runningspeed0/video/7271406113080282373'
     ]
     for url in urls:
-        eggplant = EggPlant(Source.TikTok)
+        eggplant = EggPlant(Source.TikTok, cookie_path)
         err, video_file_path = await eggplant.download_video(url)
         assert err == Exceptions.OK
-        # assert ".mp4" in video_file_path
+        assert ".mp4" in video_file_path
 
 @pytest.mark.asyncio
 async def test_tiktok():
-    url = 'https://www.tiktok.com/@neto_song/video/7283228578618035462'
+    # url = 'https://www.tiktok.com/@neto_song/video/7283228578618035462'
+    url = 'https://www.tiktok.com/@runningspeed0/video/7271406113080282373'
     async with TikTok("/Users/minyakonga/Downloads/www.tiktok.com_cookies.json") as tiktok:
-        await tiktok.download_video(url)
+        err, video_file_path = await tiktok.download_video(url)
+        assert err == Exceptions.OK
+        assert ".mp4" in video_file_path
