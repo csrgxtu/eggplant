@@ -10,9 +10,10 @@ from douyin import DouYin
 async def test_download_douyin_video():
     cookie_path = "/Users/minyakonga/Downloads/www.douyin.com_cookies.json"
     urls = [
-        'https://v.douyin.com/iecEVPQo/',
-        'https://v.douyin.com/iecEgjLy/',
-        'https://v.douyin.com/ieTs7nBH/'
+        # 'https://v.douyin.com/iecEVPQo/',
+        # 'https://v.douyin.com/iecEgjLy/',
+        # 'https://v.douyin.com/ieTs7nBH/',
+        'https://v.douyin.com/iRS8TqSf/'
     ]
     for url in urls:
         eggplant = EggPlant(Source.DouYin, cookie_path)

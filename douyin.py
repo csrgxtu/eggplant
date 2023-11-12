@@ -68,7 +68,8 @@ class DouYin:
         """
         await self.page.goto(url)
 
-        xpath = '//*[@id="douyin-right-container"]/div[3]/div/div[1]/div[2]/div/xg-video-container/video'
+        xpath = '//*[@id="douyin-right-container"]/div[2]/div/div[1]/div[2]/div/xg-video-container/video'
+        # xpath = '//*[@id="douyin-right-container"]/div[3]/div/div[1]/div[2]/div/xg-video-container/video'
         await expect(self.page.locator(xpath)).to_have_attribute('mediatype', 'video')
         xpath_source = xpath + '/source[2]'
         video_link = await self.page.locator(xpath_source).get_attribute('src')
