@@ -57,5 +57,5 @@ async with TikTok(cookie_path) as tiktok:
 ```
 
 ## TODO
-1, make eggplant `pip` installable
+1, make eggplant `pip` installable  
 2, support upload video
