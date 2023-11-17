@@ -20,11 +20,7 @@ class TikTok:
         """
         self.apw = async_playwright()
         pw = await self.apw.__aenter__()
-        self.browser = await pw.chromium.launch(
-            proxy={
-                "server": "socks5://127.0.0.1:1080",
-            }
-        )
+        self.browser = await pw.chromium.launch()
         self.context = await self.browser.new_context()
         self.page = await self.context.new_page()
 
