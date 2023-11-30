@@ -5,13 +5,14 @@ from errors import Exceptions
 
 class SourceHelper:
     @classmethod
-    async def download_video(cls, origin_url: str, video_link: str, pw_cookies: Awaitable) -> Union[str, str]:
+    async def download_video(cls, origin_url: str, video_link: str, pw_cookies: Awaitable, proxy: str) -> Union[str, str]:
         """use http client download the video file
 
         Args:
             origin_url (str): _description_
             video_link (str): _description_
             pw_cookies (Awaitable): _description_
+            proxy (str): http/https/socks proxy
 
         Returns:
             Union[str, str]: _description_
@@ -36,7 +37,7 @@ class SourceHelper:
                 cookie.get('name'): cookie.get('value')
             })
 
-        err, content = await HttpProxy.get(video_link, headers, request_cookies)
+        err, content = await HttpProxy.get(video_link, headers, request_cookies, proxy)
         if err != Exceptions.OK:
             return err, ""
 

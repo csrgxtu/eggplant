@@ -12,6 +12,8 @@ class TikTok:
         Args:
             cookie_path (str): _description_
         """
+        # self.proxy = 'socks5://127.0.0.1:1080'
+        self.proxy = ''
         with open(cookie_path, 'r') as f:
             self.cookies = json.loads(f.read())
 
@@ -20,7 +22,11 @@ class TikTok:
         """
         self.apw = async_playwright()
         pw = await self.apw.__aenter__()
-        self.browser = await pw.chromium.launch()
+        self.browser = await pw.chromium.launch(
+            proxy={
+                "server": self.proxy,
+            }
+        )
         self.context = await self.browser.new_context()
         self.page = await self.context.new_page()
 
@@ -72,7 +78,7 @@ class TikTok:
         video_link = await self.page.locator(xpath).get_attribute('src')
         print(f'Extracted VideoLink: {video_link}\n')
 
-        return await SourceHelper.download_video(url, video_link, self.context.cookies())
+        return await SourceHelper.download_video(url, video_link, self.context.cookies(), self.proxy)
 
     async def upload_video(self, filename: str) -> Union[str, str]:
         """upload video in filename to tiktok
