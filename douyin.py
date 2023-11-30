@@ -12,6 +12,7 @@ class DouYin:
         Args:
             cookie_path (str): _description_
         """
+        self.proxy = ''
         with open(cookie_path, 'r') as f:
             self.cookies = json.loads(f.read())
     
@@ -76,7 +77,7 @@ class DouYin:
         video_link = f'https:{video_link}'
         print(f'Extracted VideoLink: {video_link}\n')
         
-        return await SourceHelper.download_video(url, video_link, self.context.cookies())
+        return await SourceHelper.download_video(url, video_link, self.context.cookies(), self.proxy)
 
     async def upload_video(self, filename: str) -> Union[str, str]:
         """upload video in filename to tiktok

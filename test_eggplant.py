@@ -25,8 +25,9 @@ async def test_download_douyin_video():
 async def test_download_tiktok_video():
     cookie_path = "/Users/minyakonga/Downloads/www.tiktok.com_cookies.json"
     urls = [
-        'https://www.tiktok.com/@fiqzlirik/video/7278256015328496914',
-        'https://www.tiktok.com/@neto_song/video/7283228578618035462',
+        # 'https://www.tiktok.com/@fiqzlirik/video/7278256015328496914',
+        # 'https://www.tiktok.com/@neto_song/video/7283228578618035462',
+        # 'https://www.tiktok.com/@runningspeed0/video/7271406113080282373',
         'https://www.tiktok.com/@runningspeed0/video/7271406113080282373'
     ]
     for url in urls:
